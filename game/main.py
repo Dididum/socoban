@@ -5,42 +5,85 @@ def launch(true=True):
     pygame.init()
     screen = pygame.display.set_mode((500, 600))
 
-    texture = pygame.image.load("texture_player3.jpg")
-    texture_potato = pygame.image.load("potato.jpg")
+    level_number = 0
+    deterctor = 1
+    texture_point = 0
 
-    player_position = lvl_box_and_player()[1]
+    if texture_point == 0:
+        texture_block = texture_loader()[0]
+        texture_box = texture_loader()[1]
+        texture_win_position_off = texture_loader()[2]
+        box_act = texture_loader()[3]
+        bg = texture_loader()[4]
+    texture_point = 1
 
-    boxes = lvl_box_and_player()[0]
+    player_position = lvl_box_and_player(level_number)[1]
+    massive_blocks = lvl_blocks(level_number)
+    wins_position = win_position(level_number)
+    boxes = lvl_box_and_player(level_number)[0]
+
+    all_blocks1 = all_blocks()
+
     WHITE = (255, 255, 255)
     BLACK = (0, 0, 0)
+    last_move = ""
 
-    massive_blocks = lvl_blocks()
-    wins_position = win_position()
     run = true
     while run:
         for e in pygame.event.get():
             if e.type == pygame.QUIT:
                 run = False
             elif e.type == pygame.KEYDOWN:
-                pygame.draw.rect(screen, BLACK, player_position)
+                pygame.draw.rect(screen, WHITE, player_position)
                 last_move = act(e.key)
                 player_position = new_position(
                     player_position, last_move, massive_blocks
                 )[0]
                 player_on_box(player_position, boxes, last_move, massive_blocks)
-                check_win(boxes, wins_position)
+                if check_win(boxes, wins_position):
+                    deterctor = 0
+                    print("you won!")
         screen.fill(BLACK)
-        for i in massive_blocks:
-            pygame.draw.rect(screen, (0, 0, 255), i)
+
+        if deterctor == 0:
+            print(player_position)
+            player_position = pygame.Rect(0, 0, 0, 0)
+            massive_blocks = pygame.Rect(50, 50, 50, 50)
+            wins_position = pygame.Rect(100, 100, 100, 100)
+            boxes = pygame.Rect(0, 0, 0, 0)
+            level_number += 1
+        for i in all_blocks1:
+            block = i[1]
+            for x in range(block.left, block.right, bg.get_width()):
+                for y in range(block.top, block.bottom, bg.get_height()):
+                    screen.blit(bg, (x, y))
+
+        if last_move in ["up", "down", "left", "right"]:
+            texture = pygame.image.load(f"texture/{texture_player(last_move)}.png")
+        else:
+            texture = pygame.image.load("texture/player_down.png")
+
+        for block in massive_blocks:
+            for x in range(block.left, block.right, texture_block.get_width()):
+                for y in range(block.top, block.bottom, texture_block.get_height()):
+                    screen.blit(texture_block, (x, y))
 
         for win in wins_position:
-            pygame.draw.rect(screen, (255, 0, 0), win)
+            for x in range(win.left, win.right, texture_win_position_off.get_width()):
+                for y in range(
+                    win.top, win.bottom, texture_win_position_off.get_height()
+                ):
+                    screen.blit(texture_win_position_off, (x, y))
 
         for box in boxes:
-            for x in range(box.left, box.right, texture.get_width()):
-                for y in range(box.top, box.bottom, texture.get_height()):
-                    screen.blit(texture_potato, (x, y))
-
+            if box not in wins_position:
+                for x in range(box.left, box.right, texture_box.get_width()):
+                    for y in range(box.top, box.bottom, texture_box.get_height()):
+                        screen.blit(texture_box, (x, y))
+            else:
+                for x in range(box.left, box.right, box_act.get_width()):
+                    for y in range(box.top, box.bottom, box_act.get_height()):
+                        screen.blit(box_act, (x, y))
         for x in range(
             player_position.left, player_position.right, texture.get_width()
         ):
@@ -52,12 +95,36 @@ def launch(true=True):
     pygame.quit()
 
 
+def texture_loader():
+    texture_block = pygame.image.load("texture/block.png")
+    texture_box = pygame.image.load("texture/box.png")
+    texture_win_position_off = pygame.image.load("texture/texture_win_position_off.png")
+    box_act = pygame.image.load("texture/box_act.png")
+    bg = pygame.image.load("texture/bg.png")
+    return texture_block, texture_box, texture_win_position_off, box_act, bg
+
+
+def texture_player(last_move):
+    if last_move == "left":
+        return "player_left"
+    elif last_move == "right":
+        return "player_right"
+    elif last_move == "up":
+        return "player_up"
+    elif last_move == "down":
+        return "player_down"
+    else:
+        return False
+
+
 def check_win(boxes, wins_position):
     if all(box in wins_position for box in boxes):
-        print("You won!")
+        return True
+    else:
+        return False
 
 
-def win_position():
+def win_position(lvl):
     all_positions = all_blocks()
     wins = [34, 54, 66, 85, 100, 103, 117]
     m = [x[1] for x in all_positions if (x[0] - 17) in wins]
@@ -74,7 +141,7 @@ def all_blocks():
     return m
 
 
-def lvl_blocks():
+def lvl_blocks(lvl):
     m1 = all_blocks()
     lvl_1 = [
         3,
@@ -117,11 +184,16 @@ def lvl_blocks():
     return m
 
 
-def lvl_box_and_player():
+def lvl_box_and_player(lvl):
     m1 = all_blocks()
-    boxes = [36, 53, 69, 98, 100, 101, 102]
-    m = [x[1] for x in m1 if (x[0] - 17) in boxes]
-    player = all_blocks()[51][1]
+    if lvl == 1:
+        boxes = [36, 53, 69, 98, 100]
+        m = [x[1] for x in m1 if (x[0] - 17) in boxes]
+        player = all_blocks()[51][1]
+    else:
+        boxes = [36, 53, 69, 98, 100, 101, 102]
+        m = [x[1] for x in m1 if (x[0] - 17) in boxes]
+        player = all_blocks()[51][1]
     return [m, player]
 
 
