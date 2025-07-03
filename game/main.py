@@ -15,7 +15,6 @@ def launch(true=True):
         texture_win_position_off = texture_loader()[2]
         box_act = texture_loader()[3]
         bg = texture_loader()[4]
-    texture_point = 1
 
     player_position = lvl_box_and_player(level_number)[1]
     massive_blocks = lvl_blocks(level_number)
@@ -41,17 +40,13 @@ def launch(true=True):
                 )[0]
                 player_on_box(player_position, boxes, last_move, massive_blocks)
                 if check_win(boxes, wins_position):
-                    deterctor = 0
-                    print("you won!")
+                    level_number += 1
+                    player_position = lvl_box_and_player(level_number)[1]
+                    massive_blocks = lvl_blocks(level_number)
+                    wins_position = win_position(level_number)
+                    boxes = lvl_box_and_player(level_number)[0]
         screen.fill(BLACK)
 
-        if deterctor == 0:
-            print(player_position)
-            player_position = pygame.Rect(0, 0, 0, 0)
-            massive_blocks = pygame.Rect(50, 50, 50, 50)
-            wins_position = pygame.Rect(100, 100, 100, 100)
-            boxes = pygame.Rect(0, 0, 0, 0)
-            level_number += 1
         for i in all_blocks1:
             block = i[1]
             for x in range(block.left, block.right, bg.get_width()):
@@ -126,8 +121,8 @@ def check_win(boxes, wins_position):
 
 def win_position(lvl):
     all_positions = all_blocks()
-    wins = [34, 54, 66, 85, 100, 103, 117]
-    m = [x[1] for x in all_positions if (x[0] - 17) in wins]
+    wins = [[34, 54, 66, 85, 100, 103, 117], [69, 37]]
+    m = [x[1] for x in all_positions if (x[0] - 17) in wins[lvl]]
     return m
 
 
@@ -143,58 +138,87 @@ def all_blocks():
 
 def lvl_blocks(lvl):
     m1 = all_blocks()
-    lvl_1 = [
-        3,
-        4,
-        5,
-        6,
-        7,
-        17,
-        18,
-        19,
-        23,
-        33,
-        39,
-        49,
-        50,
-        51,
-        55,
-        65,
-        67,
-        68,
-        71,
-        81,
-        83,
-        87,
-        88,
-        97,
-        104,
-        113,
-        120,
-        129,
-        130,
-        131,
-        132,
-        133,
-        134,
-        135,
-        136,
+    lvl_block = [
+        [
+            3,
+            4,
+            5,
+            6,
+            7,
+            17,
+            18,
+            19,
+            23,
+            33,
+            39,
+            49,
+            50,
+            51,
+            55,
+            65,
+            67,
+            68,
+            71,
+            81,
+            83,
+            87,
+            88,
+            97,
+            104,
+            113,
+            120,
+            129,
+            130,
+            131,
+            132,
+            133,
+            134,
+            135,
+            136,
+        ],
+        [
+            33,
+            34,
+            98,
+            2,
+            3,
+            4,
+            5,
+            6,
+            22,
+            38,
+            54,
+            55,
+            71,
+            87,
+            103,
+            119,
+            118,
+            117,
+            116,
+            100,
+            99,
+            98,
+            82,
+            81,
+            65,
+            49,
+            68,
+            36,
+            18,
+        ],
     ]
-    m = [x[1] for x in m1 if (x[0] - 17) in lvl_1]
+    m = [x[1] for x in m1 if (x[0] - 17) in lvl_block[lvl]]
     return m
 
 
 def lvl_box_and_player(lvl):
-    m1 = all_blocks()
-    if lvl == 1:
-        boxes = [36, 53, 69, 98, 100]
-        m = [x[1] for x in m1 if (x[0] - 17) in boxes]
-        player = all_blocks()[51][1]
-    else:
-        boxes = [36, 53, 69, 98, 100, 101, 102]
-        m = [x[1] for x in m1 if (x[0] - 17) in boxes]
-        player = all_blocks()[51][1]
-    return [m, player]
+    all_blocks_lvl = all_blocks()
+    m1 = [[36, 53, 69, 98, 100, 101, 102], [67, 35]]
+    boxes = m1[lvl]
+    m = [x[1] for x in all_blocks_lvl if (x[0] - 17) in boxes]
+    player = [all_blocks()[51][1], all_blocks_lvl[35][1]]
+    return [m, player[lvl]]
 
 
 def player_on_box(player_position, boxes, last_move, massive_blocks):
