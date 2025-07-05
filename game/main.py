@@ -1,20 +1,28 @@
 import pygame
+from player.player import Vector
+WHITE = (255, 255, 255)
+BLACK = (0, 0, 0)
 
+texture_block = pygame.image.load("texture/block.png")
+texture_box = pygame.image.load("texture/box.png")
+texture_win_position_off = pygame.image.load("texture/texture_win_position_off.png")
+box_act = pygame.image.load("texture/box_act.png")
+bg = pygame.image.load("texture/bg.png")
 
-def launch(true=True):
+CELL_SIZE = 50
+
+direction_step = {
+    pygame.K_RIGHT: Vector((1, 0)),
+    pygame.K_LEFT: Vector((-1, 0)),
+    pygame.K_DOWN: Vector((0, 1)),
+    pygame.K_UP: Vector((0, -1))
+}
+
+def launch():
     pygame.init()
     screen = pygame.display.set_mode((500, 600))
 
     level_number = 0
-    deterctor = 1
-    texture_point = 0
-
-    if texture_point == 0:
-        texture_block = texture_loader()[0]
-        texture_box = texture_loader()[1]
-        texture_win_position_off = texture_loader()[2]
-        box_act = texture_loader()[3]
-        bg = texture_loader()[4]
 
     player_position = lvl_box_and_player(level_number)[1]
     massive_blocks = lvl_blocks(level_number)
@@ -22,12 +30,9 @@ def launch(true=True):
     boxes = lvl_box_and_player(level_number)[0]
 
     all_blocks1 = all_blocks()
-
-    WHITE = (255, 255, 255)
-    BLACK = (0, 0, 0)
     last_move = ""
 
-    run = true
+    run = True
     while run:
         for e in pygame.event.get():
             if e.type == pygame.QUIT:
@@ -88,15 +93,6 @@ def launch(true=True):
                 screen.blit(texture, (x, y))
         pygame.display.flip()
     pygame.quit()
-
-
-def texture_loader():
-    texture_block = pygame.image.load("texture/block.png")
-    texture_box = pygame.image.load("texture/box.png")
-    texture_win_position_off = pygame.image.load("texture/texture_win_position_off.png")
-    box_act = pygame.image.load("texture/box_act.png")
-    bg = pygame.image.load("texture/bg.png")
-    return texture_block, texture_box, texture_win_position_off, box_act, bg
 
 
 def texture_player(last_move):
@@ -227,38 +223,18 @@ def player_on_box(player_position, boxes, last_move, massive_blocks):
             index = new_position(
                 box, last_move, massive_blocks + [x for x in boxes if x != box]
             )[1]
-            if index == "right":
-                player_position.move_ip(-50, 0)
-            elif index == "left":
-                player_position.move_ip(50, 0)
-            elif index == "up":
-                player_position.move_ip(0, 50)
-            elif index == "down":
-                player_position.move_ip(0, -50)
-
+            if index in direction_step:
+                step = direction_step[index] * -50
+                player_position.move_ip(*step)
 
 def new_position(position, command, massive_blocks):
     index = "nothing"
-    if command == "down":
-        position.move_ip(0, 50)
+    if command in direction_step:
+        step = direction_step[command] * 50
+        position.move_ip(*step)
         if check_collision(position, massive_blocks):
-            position.move_ip(0, -50)
-            index = "down"
-    elif command == "up":
-        position.move_ip(0, -50)
-        if check_collision(position, massive_blocks):
-            position.move_ip(0, 50)
-            index = "up"
-    elif command == "left":
-        position.move_ip(-50, 0)
-        if check_collision(position, massive_blocks):
-            position.move_ip(50, 0)
-            index = "left"
-    elif command == "right":
-        position.move_ip(50, 0)
-        if check_collision(position, massive_blocks):
-            position.move_ip(-50, 0)
-            index = "right"
+            position.move_ip(*(-1 * step))
+            index = command
     return position, index
 
 
@@ -270,20 +246,10 @@ def check_collision(player_position, massive_blocks):
 
 
 def act(key):
-    if key == pygame.K_UP:
-        print("up")
-        return "up"
-    elif key == pygame.K_DOWN:
-        print("down")
-        return "down"
-    elif key == pygame.K_LEFT:
-        print("left")
-        return "left"
-    elif key == pygame.K_RIGHT:
-        print("right")
-        return "right"
-    elif key == pygame.K_ESCAPE:
+    if key == pygame.K_ESCAPE:
         exit(0)
+    elif key in direction_step:
+        return key
     return None
 
 
