@@ -62,31 +62,12 @@ def launch(true=True):
                         try:
                             level_number += 1
                             level = open(f"levels/lvl{level_number}.csv")
-                            count = 0
-                            number_player_position = []
-                            number_massive_blocks = []
-                            number_wins_position = []
-                            number_boxes = []
-                            for line in level:
-                                line = line.strip().split(";")
-                                for i in line:
-                                    count += 1
-                                    if i == "1":
-                                        number_massive_blocks.append(count)
-                                    elif i == "2":
-                                        number_wins_position.append(count)
-                                    elif i == "3":
-                                        number_boxes.append(count)
-                                    elif i == "4":
-                                        number_player_position.append(count)
-                            boxes, player_position = lvl_box_and_player(
-                                number_boxes, number_player_position
+                            boxes, player_position, massive_blocks, wins_position = (
+                                level_structure(level)
                             )
-                            massive_blocks = lvl_blocks(number_massive_blocks)
-                            wins_position = win_position(number_wins_position)
-                            player_position = player_position[1]
                         except:
                             print("You win")
+                            print("Press any key to exit    ")
         screen.fill(BLACK)
 
         for i in all_blocks():
