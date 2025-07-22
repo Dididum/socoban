@@ -16,30 +16,9 @@ def launch(true=True):
     screen = pygame.display.set_mode((500, 600))
 
     level_number = 0
-    texture_point = 0
     clock = pygame.time.Clock()
     level = open(f"levels/lvl{level_number}.csv")
-    count = 0
-    number_player_position = []
-    number_massive_blocks = []
-    number_wins_position = []
-    number_boxes = []
-    for line in level:
-        line = line.strip().split(";")
-        for i in line:
-            count += 1
-            if i == "1":
-                number_massive_blocks.append(count)
-            elif i == "2":
-                number_wins_position.append(count)
-            elif i == "3":
-                number_boxes.append(count)
-            elif i == "4":
-                number_player_position.append(count)
-    boxes, player_position = lvl_box_and_player(number_boxes, number_player_position)
-    massive_blocks = lvl_blocks(number_massive_blocks)
-    wins_position = win_position(number_wins_position)
-    player_position = player_position[1]
+    boxes, player_position, massive_blocks, wins_position = level_structure(level)
 
     WHITE = (255, 255, 255)
     BLACK = (0, 0, 0)
@@ -54,43 +33,23 @@ def launch(true=True):
                 last_move = act(e.key)
                 if e.key == pygame.K_r:
                     level = open(f"levels/lvl{level_number}.csv")
-                    count = 0
-                    number_player_position = []
-                    number_massive_blocks = []
-                    number_wins_position = []
-                    number_boxes = []
-                    for line in level:
-                        line = line.strip().split(";")
-                        for i in line:
-                            count += 1
-                            if i == "1":
-                                number_massive_blocks.append(count)
-                            elif i == "2":
-                                number_wins_position.append(count)
-                            elif i == "3":
-                                number_boxes.append(count)
-                            elif i == "4":
-                                number_player_position.append(count)
-                    boxes, player_position = lvl_box_and_player(
-                        number_boxes, number_player_position
+                    boxes, player_position, massive_blocks, wins_position = (
+                        level_structure(level)
                     )
-                    massive_blocks = lvl_blocks(number_massive_blocks)
-                    wins_position = win_position(number_wins_position)
-                    player_position = player_position[1]
 
                 if e.key == pygame.K_SPACE:
                     level_number += 1
-                    player_position = lvl_box_and_player(level_number)[1]
-                    massive_blocks = lvl_blocks(level_number)
-                    wins_position = win_position(level_number)
-                    boxes = lvl_box_and_player(level_number)[0]
+                    level = open(f"levels/lvl{level_number}.csv")
+                    boxes, player_position, massive_blocks, wins_position = (
+                        level_structure(level)
+                    )
 
                 if e.key == pygame.K_MINUS:
                     level_number -= 1
-                    player_position = lvl_box_and_player(level_number)[1]
-                    massive_blocks = lvl_blocks(level_number)
-                    wins_position = win_position(level_number)
-                    boxes = lvl_box_and_player(level_number)[0]
+                    level = open(f"levels/lvl{level_number}.csv")
+                    boxes, player_position, massive_blocks, wins_position = (
+                        level_structure(level)
+                    )
 
                 player_position = new_position(
                     player_position, last_move, massive_blocks
