@@ -56,9 +56,7 @@ def lvl_blocks(lvl_block):
 def lvl_box_and_player(boxes, player):
     all_blocks_lvl = all_blocks()
     m = [x[1] for x in all_blocks_lvl if (x[0]) in boxes]
-    print(player)
     player = player[0]
-    print(player)
     player1 = all_blocks_lvl[player - 1]
     return m, player1
 

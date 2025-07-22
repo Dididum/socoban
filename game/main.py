@@ -1,6 +1,15 @@
 from game_functions.all_functions import *
 import pygame
 
+all_textures = texture_loader()
+texture_block, texture_box, texture_win_position_off, box_act, bg = (
+    all_textures[0],
+    all_textures[1],
+    all_textures[2],
+    all_textures[3],
+    all_textures[4],
+)
+
 
 def launch(true=True):
     pygame.init()
@@ -32,21 +41,9 @@ def launch(true=True):
     wins_position = win_position(number_wins_position)
     player_position = player_position[1]
 
-    print(massive_blocks)
-    if texture_point == 0:
-        all_textures = texture_loader()
-        texture_block, texture_box, texture_win_position_off, box_act, bg = (
-            all_textures[0],
-            all_textures[1],
-            all_textures[2],
-            all_textures[3],
-            all_textures[4],
-        )
-
     WHITE = (255, 255, 255)
     BLACK = (0, 0, 0)
     last_move = ""
-    print(player_position, boxes)
     run = true
     while run:
         for e in pygame.event.get():
@@ -103,31 +100,34 @@ def launch(true=True):
                     exit()
                 if check_win(boxes, wins_position):
                     if level_number < 2:
-                        level_number += 1
-                        level = open(f"levels/lvl{level_number}.csv")
-                        count = 0
-                        number_player_position = []
-                        number_massive_blocks = []
-                        number_wins_position = []
-                        number_boxes = []
-                        for line in level:
-                            line = line.strip().split(";")
-                            for i in line:
-                                count += 1
-                                if i == "1":
-                                    number_massive_blocks.append(count)
-                                elif i == "2":
-                                    number_wins_position.append(count)
-                                elif i == "3":
-                                    number_boxes.append(count)
-                                elif i == "4":
-                                    number_player_position.append(count)
-                        boxes, player_position = lvl_box_and_player(
-                            number_boxes, number_player_position
-                        )
-                        massive_blocks = lvl_blocks(number_massive_blocks)
-                        wins_position = win_position(number_wins_position)
-                        player_position = player_position[1]
+                        try:
+                            level_number += 1
+                            level = open(f"levels/lvl{level_number}.csv")
+                            count = 0
+                            number_player_position = []
+                            number_massive_blocks = []
+                            number_wins_position = []
+                            number_boxes = []
+                            for line in level:
+                                line = line.strip().split(";")
+                                for i in line:
+                                    count += 1
+                                    if i == "1":
+                                        number_massive_blocks.append(count)
+                                    elif i == "2":
+                                        number_wins_position.append(count)
+                                    elif i == "3":
+                                        number_boxes.append(count)
+                                    elif i == "4":
+                                        number_player_position.append(count)
+                            boxes, player_position = lvl_box_and_player(
+                                number_boxes, number_player_position
+                            )
+                            massive_blocks = lvl_blocks(number_massive_blocks)
+                            wins_position = win_position(number_wins_position)
+                            player_position = player_position[1]
+                        except:
+                            print("You win")
         screen.fill(BLACK)
 
         for i in all_blocks():
