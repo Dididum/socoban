@@ -1,30 +1,36 @@
 import pygame
 from pygame import Surface
+import pandas as pd
 
 
-def level_structure(level):
+def level_structure(level: pd.DataFrame) -> tuple:
+    print(level)
     count = 0
     pl_pos = []
     mas_bl = []
     win_pos = []
     boxes = []
     for line in level:
-        line = line.strip().split(";")
         for i in line:
             count += 1
-            if i == "1":
+            if i == 1:
                 mas_bl.append(count)
-            elif i == "2":
+            elif i == 2:
                 win_pos.append(count)
-            elif i == "3":
+            elif i == 3:
                 boxes.append(count)
-            elif i == "4":
+            elif i == 4:
                 pl_pos.append(count)
     boxes, player_position = lvl_box_and_player(boxes, pl_pos)
     massive_blocks = lvl_blocks(mas_bl)
     wins_position = win_position(win_pos)
     player_position = player_position[1]
     return boxes, player_position, massive_blocks, wins_position
+
+
+def return_last_position(state_log):
+    print(state_log[2])
+    return state_log[0], state_log[2]
 
 
 def texture_loader() -> tuple[Surface, Surface, Surface, Surface, Surface]:

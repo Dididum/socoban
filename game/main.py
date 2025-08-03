@@ -1,7 +1,8 @@
-from game_functions.all_functions import *
+import game_functions.all_functions as af
 import pygame
+from numpy import genfromtxt
 
-all_textures = texture_loader()
+all_textures = af.texture_loader()
 texture_block, texture_box, texture_win_position_off, box_act, bg = (
     all_textures[0],
     all_textures[1],
@@ -17,9 +18,16 @@ def launch(true=True):
 
     level_number = 0
     clock = pygame.time.Clock()
-    level = open(f"levels/lvl{level_number}.csv")
-    boxes, player_position, massive_blocks, wins_position = level_structure(level)
-
+    level = genfromtxt(f"levels/lvl{level_number}.csv", delimiter=";", dtype=int)
+    boxes, player_position, massive_blocks, wins_position = af.level_structure(level)
+    state_log = [
+        [
+            player_position.copy(),
+            wins_position.copy(),
+            boxes.copy(),
+            massive_blocks.copy(),
+        ]
+    ]
     WHITE = (255, 255, 255)
     BLACK = (0, 0, 0)
     last_move = ""
@@ -30,54 +38,82 @@ def launch(true=True):
                 run = False
             elif e.type == pygame.KEYDOWN:
                 pygame.draw.rect(screen, WHITE, player_position)
-                last_move = act(e.key)
+                last_move = af.act(e.key)
                 if e.key == pygame.K_r:
-                    level = open(f"levels/lvl{level_number}.csv")
+                    level = genfromtxt(
+                        f"levels/lvl{level_number}.csv", delimiter=";", dtype=int
+                    )
                     boxes, player_position, massive_blocks, wins_position = (
-                        level_structure(level)
+                        af.level_structure(level)
                     )
 
                 if e.key == pygame.K_SPACE:
                     level_number += 1
-                    level = open(f"levels/lvl{level_number}.csv")
+                    level = genfromtxt(
+                        f"levels/lvl{level_number}.csv", delimiter=";", dtype=int
+                    )
                     boxes, player_position, massive_blocks, wins_position = (
-                        level_structure(level)
+                        af.level_structure(level)
                     )
 
                 if e.key == pygame.K_MINUS:
                     level_number -= 1
-                    level = open(f"levels/lvl{level_number}.csv")
+                    level = genfromtxt(
+                        f"levels/lvl{level_number}.csv", delimiter=";", dtype=int
+                    )
                     boxes, player_position, massive_blocks, wins_position = (
-                        level_structure(level)
+                        af.level_structure(level)
                     )
 
-                player_position = new_position(
+                if e.key == pygame.K_BACKSPACE:
+                    print(boxes)
+                    if len(state_log) >= 2:
+                        player_position, boxes = af.return_last_position(
+                            state_log.pop(-2)
+                        )
+                        print(boxes)
+                        state_log.pop(-1)
+
+                player_position = af.new_position(
                     player_position, last_move, massive_blocks
                 )[0]
-                player_on_box(player_position, boxes, last_move, massive_blocks)
+                af.player_on_box(player_position, boxes, last_move, massive_blocks)
                 if level_number >= 2:
                     exit()
-                if check_win(boxes, wins_position):
+                if af.check_win(boxes, wins_position):
                     if level_number < 2:
                         try:
                             level_number += 1
-                            level = open(f"levels/lvl{level_number}.csv")
-                            boxes, player_position, massive_blocks, wins_position = (
-                                level_structure(level)
+                            level = genfromtxt(
+                                f"levels/lvl{level_number}.csv",
+                                delimiter=";",
+                                dtype=int,
                             )
-                        except:
+                            boxes, player_position, massive_blocks, wins_position = (
+                                af.level_structure(level)
+                            )
+                        except FileNotFoundError:
                             print("You win")
                             print("Press any key to exit    ")
+                state_log.append(
+                    [
+                        player_position.copy(),
+                        wins_position.copy(),
+                        boxes.copy(),
+                        massive_blocks.copy(),
+                    ]
+                )
+
         screen.fill(BLACK)
 
-        for i in all_blocks():
+        for i in af.all_blocks():
             block = i[1]
             for x in range(block.left, block.right, bg.get_width()):
                 for y in range(block.top, block.bottom, bg.get_height()):
                     screen.blit(bg, (x, y))
 
         if last_move in ["up", "down", "left", "right"]:
-            texture = pygame.image.load(f"texture/{texture_player(last_move)}.png")
+            texture = pygame.image.load(f"texture/{af.texture_player(last_move)}.png")
         else:
             texture = pygame.image.load("texture/player_down.png")
 
