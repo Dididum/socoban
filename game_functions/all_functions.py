@@ -1,10 +1,11 @@
+from copy import deepcopy
+
 import pygame
 from pygame import Surface
 import pandas as pd
 
 
 def level_structure(level: pd.DataFrame) -> tuple:
-    print(level)
     count = 0
     pl_pos = []
     mas_bl = []
@@ -29,8 +30,16 @@ def level_structure(level: pd.DataFrame) -> tuple:
 
 
 def return_last_position(state_log):
-    print(state_log[2])
     return state_log[0], state_log[2]
+
+
+def copy_level(player_position, massive_blocks, wins_position, boxes):
+    return [
+        player_position.copy(),
+        wins_position.copy(),
+        deepcopy(boxes),
+        massive_blocks.copy(),
+    ]
 
 
 def texture_loader() -> tuple[Surface, Surface, Surface, Surface, Surface]:
@@ -71,10 +80,16 @@ def win_position(wins):
 def all_blocks():
     m = []
     i = 0
-    for y in range(0, 600, 50):
-        for x in range(0, 800, 50):
+    counter = 0
+    counter2 = 0
+    for y in range(0, 1080, 64):
+        for x in range(0, 1920, 64):
             i += 1
-            m.append((i, pygame.Rect(x, y, 50, 50)))
+            m.append((i, pygame.Rect(x, y, 64, 64)))
+            counter += 1
+        print(counter)
+        counter2 += 1
+    print(counter2)
     return m
 
 
@@ -99,36 +114,36 @@ def player_on_box(player_position, boxes, last_move, massive_blocks):
                 box, last_move, massive_blocks + [x for x in boxes if x != box]
             )[1]
             if index == "right":
-                player_position.move_ip(-50, 0)
+                player_position.move_ip(-64, 0)
             elif index == "left":
-                player_position.move_ip(50, 0)
+                player_position.move_ip(64, 0)
             elif index == "up":
-                player_position.move_ip(0, 50)
+                player_position.move_ip(0, 64)
             elif index == "down":
-                player_position.move_ip(0, -50)
+                player_position.move_ip(0, -64)
 
 
 def new_position(position, command, massive_blocks):
     index = "nothing"
     if command == "down":
-        position.move_ip(0, 50)
+        position.move_ip(0, 64)
         if check_collision(position, massive_blocks):
-            position.move_ip(0, -50)
+            position.move_ip(0, -64)
             index = "down"
     elif command == "up":
-        position.move_ip(0, -50)
+        position.move_ip(0, -64)
         if check_collision(position, massive_blocks):
-            position.move_ip(0, 50)
+            position.move_ip(0, 64)
             index = "up"
     elif command == "left":
-        position.move_ip(-50, 0)
+        position.move_ip(-64, 0)
         if check_collision(position, massive_blocks):
-            position.move_ip(50, 0)
+            position.move_ip(64, 0)
             index = "left"
     elif command == "right":
-        position.move_ip(50, 0)
+        position.move_ip(64, 0)
         if check_collision(position, massive_blocks):
-            position.move_ip(-50, 0)
+            position.move_ip(-64, 0)
             index = "right"
     return position, index
 

@@ -1,3 +1,4 @@
+from copy import deepcopy
 import game_functions.all_functions as af
 import pygame
 from numpy import genfromtxt
@@ -14,7 +15,7 @@ texture_block, texture_box, texture_win_position_off, box_act, bg = (
 
 def launch(true=True):
     pygame.init()
-    screen = pygame.display.set_mode((500, 600))
+    screen = pygame.display.set_mode((1920, 1080))
 
     level_number = 0
     clock = pygame.time.Clock()
@@ -24,12 +25,12 @@ def launch(true=True):
         [
             player_position.copy(),
             wins_position.copy(),
-            boxes.copy(),
+            deepcopy(boxes),
             massive_blocks.copy(),
         ]
     ]
     WHITE = (255, 255, 255)
-    BLACK = (0, 0, 0)
+    BLACK = (255, 255, 255)
     last_move = ""
     run = true
     while run:
@@ -66,22 +67,21 @@ def launch(true=True):
                     )
 
                 if e.key == pygame.K_BACKSPACE:
-                    print(boxes)
                     if len(state_log) >= 2:
                         player_position, boxes = af.return_last_position(
                             state_log.pop(-2)
                         )
-                        print(boxes)
                         state_log.pop(-1)
 
                 player_position = af.new_position(
                     player_position, last_move, massive_blocks
                 )[0]
                 af.player_on_box(player_position, boxes, last_move, massive_blocks)
-                if level_number >= 2:
+                if level_number >= 4:
                     exit()
+                print(level_number)
                 if af.check_win(boxes, wins_position):
-                    if level_number < 2:
+                    if level_number < 4:
                         try:
                             level_number += 1
                             level = genfromtxt(
@@ -92,6 +92,14 @@ def launch(true=True):
                             boxes, player_position, massive_blocks, wins_position = (
                                 af.level_structure(level)
                             )
+                            state_log = [
+                                [
+                                    player_position.copy(),
+                                    wins_position.copy(),
+                                    deepcopy(boxes),
+                                    massive_blocks.copy(),
+                                ]
+                            ]
                         except FileNotFoundError:
                             print("You win")
                             print("Press any key to exit    ")
@@ -99,7 +107,7 @@ def launch(true=True):
                     [
                         player_position.copy(),
                         wins_position.copy(),
-                        boxes.copy(),
+                        deepcopy(boxes),
                         massive_blocks.copy(),
                     ]
                 )
